@@ -1,14 +1,7 @@
-
-(function(l, r) { if (l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (window.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(window.document);
 var app = (function () {
     'use strict';
 
     function noop() { }
-    function add_location(element, file, line, column, char) {
-        element.__svelte_meta = {
-            loc: { file, line, column, char }
-        };
-    }
     function run(fn) {
         return fn();
     }
@@ -52,13 +45,13 @@ var app = (function () {
     function children(element) {
         return Array.from(element.childNodes);
     }
+    function set_data(text, data) {
+        data = '' + data;
+        if (text.wholeText !== data)
+            text.data = data;
+    }
     function set_style(node, key, value, important) {
         node.style.setProperty(key, value, important ? 'important' : '');
-    }
-    function custom_event(type, detail) {
-        const e = document.createEvent('CustomEvent');
-        e.initCustomEvent(type, false, false, detail);
-        return e;
     }
 
     let current_component;
@@ -143,12 +136,6 @@ var app = (function () {
             block.i(local);
         }
     }
-
-    const globals = (typeof window !== 'undefined'
-        ? window
-        : typeof globalThis !== 'undefined'
-            ? globalThis
-            : global);
     function mount_component(component, target, anchor) {
         const { fragment, on_mount, on_destroy, after_update } = component.$$;
         fragment && fragment.m(target, anchor);
@@ -261,59 +248,6 @@ var app = (function () {
         $set() {
             // overridden by instance, if it has props
         }
-    }
-
-    function dispatch_dev(type, detail) {
-        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.24.0' }, detail)));
-    }
-    function append_dev(target, node) {
-        dispatch_dev("SvelteDOMInsert", { target, node });
-        append(target, node);
-    }
-    function insert_dev(target, node, anchor) {
-        dispatch_dev("SvelteDOMInsert", { target, node, anchor });
-        insert(target, node, anchor);
-    }
-    function detach_dev(node) {
-        dispatch_dev("SvelteDOMRemove", { node });
-        detach(node);
-    }
-    function attr_dev(node, attribute, value) {
-        attr(node, attribute, value);
-        if (value == null)
-            dispatch_dev("SvelteDOMRemoveAttribute", { node, attribute });
-        else
-            dispatch_dev("SvelteDOMSetAttribute", { node, attribute, value });
-    }
-    function set_data_dev(text, data) {
-        data = '' + data;
-        if (text.wholeText === data)
-            return;
-        dispatch_dev("SvelteDOMSetData", { node: text, data });
-        text.data = data;
-    }
-    function validate_slots(name, slot, keys) {
-        for (const slot_key of Object.keys(slot)) {
-            if (!~keys.indexOf(slot_key)) {
-                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
-            }
-        }
-    }
-    class SvelteComponentDev extends SvelteComponent {
-        constructor(options) {
-            if (!options || (!options.target && !options.$$inline)) {
-                throw new Error(`'target' is a required option`);
-            }
-            super();
-        }
-        $destroy() {
-            super.$destroy();
-            this.$destroy = () => {
-                console.warn(`Component was already destroyed`); // eslint-disable-line no-console
-            };
-        }
-        $capture_state() { }
-        $inject_state() { }
     }
 
     /**
@@ -71818,7 +71752,7 @@ return (round(mod(b, 2.0)) != 1) ?
         'tfjs': version$6
     };
 
-    var tf = /*#__PURE__*/Object.freeze({
+    var dist = /*#__PURE__*/Object.freeze({
         __proto__: null,
         data: index,
         version: version$7,
@@ -72229,15 +72163,15 @@ return (round(mod(b, 2.0)) != 1) ?
      * @param rasterElement the element with pixels to convert to a Tensor
      */
     function capture(rasterElement) {
-        return tf.tidy(function () {
-            var pixels = tf.browser.fromPixels(rasterElement);
+        return dist.tidy(function () {
+            var pixels = dist.browser.fromPixels(rasterElement);
             // crop the image so we're using the center square
             var cropped = cropTensor(pixels);
             // Expand the outer most dimension so we have a batch size of 1
             var batchedImage = cropped.expandDims(0);
             // Normalize the image between -1 and a1. The image comes in between 0-255
             // so we divide by 127 and subtract 1.
-            return batchedImage.toFloat().div(tf.scalar(127)).sub(tf.scalar(1));
+            return batchedImage.toFloat().div(dist.scalar(127)).sub(dist.scalar(1));
         });
     }
     exports.capture = capture;
@@ -72401,7 +72335,7 @@ return (round(mod(b, 2.0)) != 1) ?
     };
     Object.defineProperty(exports, "__esModule", { value: true });
 
-    var tfjs_1 = tf;
+    var tfjs_1 = dist;
 
 
 
@@ -72530,7 +72464,7 @@ return (round(mod(b, 2.0)) != 1) ?
                     case 0: return [4 /*yield*/, logits.data()];
                     case 1:
                         values = _a.sent();
-                        return [2 /*return*/, tf.tidy(function () {
+                        return [2 /*return*/, dist.tidy(function () {
                                 topK = Math.min(topK, values.length);
                                 var valuesAndIndices = [];
                                 for (var i = 0; i < values.length; i++) {
@@ -72604,7 +72538,7 @@ return (round(mod(b, 2.0)) != 1) ?
                     switch (_a.label) {
                         case 0:
                             croppedImage = canvas.cropTo(image, exports.IMAGE_SIZE, flipped);
-                            logits = tf.tidy(function () {
+                            logits = dist.tidy(function () {
                                 var captured = tf_1.capture(croppedImage);
                                 return _this.model.predict(captured);
                             });
@@ -72632,7 +72566,7 @@ return (round(mod(b, 2.0)) != 1) ?
                     switch (_a.label) {
                         case 0:
                             croppedImage = canvas.cropTo(image, exports.IMAGE_SIZE, flipped);
-                            logits = tf.tidy(function () {
+                            logits = dist.tidy(function () {
                                 var captured = tf_1.capture(croppedImage);
                                 return _this.model.predict(captured);
                             });
@@ -72669,23 +72603,23 @@ return (round(mod(b, 2.0)) != 1) ?
                 switch (_b.label) {
                     case 0:
                         _a = parseModelOptions(modelOptions), checkpointUrl = _a[0], trainingLayer = _a[1];
-                        return [4 /*yield*/, tf.loadLayersModel(checkpointUrl)];
+                        return [4 /*yield*/, dist.loadLayersModel(checkpointUrl)];
                     case 1:
                         mobilenet = _b.sent();
                         if (modelOptions && modelOptions.version === 1) {
                             layer = mobilenet.getLayer(trainingLayer);
-                            truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
-                            model = tf.sequential();
+                            truncatedModel = dist.model({ inputs: mobilenet.inputs, outputs: layer.output });
+                            model = dist.sequential();
                             model.add(truncatedModel);
-                            model.add(tf.layers.flatten());
+                            model.add(dist.layers.flatten());
                             return [2 /*return*/, model];
                         }
                         else {
                             layer = mobilenet.getLayer(trainingLayer);
-                            truncatedModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
-                            model = tf.sequential();
+                            truncatedModel = dist.model({ inputs: mobilenet.inputs, outputs: layer.output });
+                            model = dist.sequential();
                             model.add(truncatedModel);
-                            model.add(tf.layers.globalAveragePooling2d({})); // go from shape [7, 7, 1280] to [1280]
+                            model.add(dist.layers.globalAveragePooling2d({})); // go from shape [7, 7, 1280] to [1280]
                             return [2 /*return*/, model];
                         }
                 }
@@ -72698,7 +72632,7 @@ return (round(mod(b, 2.0)) != 1) ?
             var customModel, metadataJSON, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, tf.loadLayersModel(model)];
+                    case 0: return [4 /*yield*/, dist.loadLayersModel(model)];
                     case 1:
                         customModel = _b.sent();
                         if (!metadata) return [3 /*break*/, 3];
@@ -72722,7 +72656,7 @@ return (round(mod(b, 2.0)) != 1) ?
             var customModel, metadataFile, metadataJSON, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, tf.loadLayersModel(tf.io.browserFiles([model, weights]))];
+                    case 0: return [4 /*yield*/, dist.loadLayersModel(dist.io.browserFiles([model, weights]))];
                     case 1:
                         customModel = _b.sent();
                         return [4 /*yield*/, new Response(metadata).json()];
@@ -72823,7 +72757,7 @@ return (round(mod(b, 2.0)) != 1) ?
     };
     Object.defineProperty(exports, "__esModule", { value: true });
 
-    var tfjs_1 = tf;
+    var tfjs_1 = dist;
 
 
 
@@ -72865,7 +72799,7 @@ return (round(mod(b, 2.0)) != 1) ?
     var TeachableMobileNet = /** @class */ (function (_super) {
         __extends(TeachableMobileNet, _super);
         function TeachableMobileNet(truncated, metadata) {
-            var _this = _super.call(this, tf.sequential(), metadata) || this;
+            var _this = _super.call(this, dist.sequential(), metadata) || this;
             // private __stopTrainingReject: (error: Error) => void;
             // Number of total samples
             _this.totalSamples = 0;
@@ -73019,14 +72953,14 @@ return (round(mod(b, 2.0)) != 1) ?
             // finally shuffle both train and validation datasets
             trainDataset = fisherYates(trainDataset, this.seed);
             validationDataset = fisherYates(validationDataset, this.seed);
-            var trainX = tf.data.array(trainDataset.map(function (sample) { return sample.data; }));
-            var validationX = tf.data.array(validationDataset.map(function (sample) { return sample.data; }));
-            var trainY = tf.data.array(trainDataset.map(function (sample) { return sample.label; }));
-            var validationY = tf.data.array(validationDataset.map(function (sample) { return sample.label; }));
+            var trainX = dist.data.array(trainDataset.map(function (sample) { return sample.data; }));
+            var validationX = dist.data.array(validationDataset.map(function (sample) { return sample.data; }));
+            var trainY = dist.data.array(trainDataset.map(function (sample) { return sample.label; }));
+            var validationY = dist.data.array(validationDataset.map(function (sample) { return sample.label; }));
             // return tf.data dataset objects
             return {
-                trainDataset: tf.data.zip({ xs: trainX, ys: trainY }),
-                validationDataset: tf.data.zip({ xs: validationX, ys: validationY })
+                trainDataset: dist.data.zip({ xs: trainX, ys: trainY }),
+                validationDataset: dist.data.zip({ xs: validationX, ys: validationY })
             };
         };
         /**
@@ -73076,23 +73010,23 @@ return (round(mod(b, 2.0)) != 1) ?
                             numLabels = this.getLabels().length;
                             tfjs_1.util.assert(numLabels === this.numClasses, function () { return "Can not train, has " + numLabels + " labels and " + _this.numClasses + " classes"; });
                             inputShape = this.truncatedModel.outputs[0].shape.slice(1);
-                            inputSize = tf.util.sizeFromShape(inputShape);
+                            inputSize = dist.util.sizeFromShape(inputShape);
                             if (this.seed) {
-                                varianceScaling = tf.initializers.varianceScaling({ seed: 3.14 });
+                                varianceScaling = dist.initializers.varianceScaling({ seed: 3.14 });
                             }
                             else {
-                                varianceScaling = tf.initializers.varianceScaling({});
+                                varianceScaling = dist.initializers.varianceScaling({});
                             }
-                            this.trainingModel = tf.sequential({
+                            this.trainingModel = dist.sequential({
                                 layers: [
-                                    tf.layers.dense({
+                                    dist.layers.dense({
                                         inputShape: [inputSize],
                                         units: params.denseUnits,
                                         activation: 'relu',
                                         kernelInitializer: varianceScaling,
                                         useBias: true
                                     }),
-                                    tf.layers.dense({
+                                    dist.layers.dense({
                                         kernelInitializer: varianceScaling,
                                         useBias: false,
                                         activation: 'softmax',
@@ -73100,7 +73034,7 @@ return (round(mod(b, 2.0)) != 1) ?
                                     })
                                 ]
                             });
-                            optimizer = tf.train.adam(params.learningRate);
+                            optimizer = dist.train.adam(params.learningRate);
                             // const optimizer = tf.train.rmsprop(params.learningRate);
                             this.trainingModel.compile({
                                 optimizer: optimizer,
@@ -73120,7 +73054,7 @@ return (round(mod(b, 2.0)) != 1) ?
                                 })];
                         case 1:
                             history = _a.sent();
-                            jointModel = tf.sequential();
+                            jointModel = dist.sequential();
                             jointModel.add(this.truncatedModel);
                             jointModel.add(this.trainingModel);
                             this.model = jointModel;
@@ -73226,8 +73160,8 @@ return (round(mod(b, 2.0)) != 1) ?
                             i++;
                             return [3 /*break*/, 3];
                         case 7:
-                            reference = tf.concat(allY);
-                            predictions = tf.concat(allX);
+                            reference = dist.concat(allY);
+                            predictions = dist.concat(allX);
                             // only if we concatenated more than one tensor for preference and reference
                             if (iterations !== 1) {
                                 for (i = 0; i < allX.length; i++) {
@@ -73545,7 +73479,7 @@ return (round(mod(b, 2.0)) != 1) ?
     unwrapExports(webcam$1);
     var webcam_1 = webcam$1.Webcam;
 
-    var dist = createCommonjsModule(function (module, exports) {
+    var dist$1 = createCommonjsModule(function (module, exports) {
     /**
      * @license
      * Copyright 2019 Google LLC. All Rights Reserved.
@@ -73579,37 +73513,19 @@ return (round(mod(b, 2.0)) != 1) ?
 
     });
 
-    var index$1 = unwrapExports(dist);
-    var dist_1 = dist.IMAGE_SIZE;
-    var dist_2 = dist.CustomMobileNet;
-    var dist_3 = dist.load;
-    var dist_4 = dist.loadFromFiles;
-    var dist_5 = dist.loadTruncatedMobileNet;
-    var dist_6 = dist.TeachableMobileNet;
-    var dist_7 = dist.createTeachable;
-    var dist_8 = dist.Webcam;
-    var dist_9 = dist.version;
-
-    var tmImage = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.assign(/*#__PURE__*/Object.create(null), index$1, {
-        'default': index$1,
-        __moduleExports: dist,
-        IMAGE_SIZE: dist_1,
-        CustomMobileNet: dist_2,
-        load: dist_3,
-        loadFromFiles: dist_4,
-        loadTruncatedMobileNet: dist_5,
-        TeachableMobileNet: dist_6,
-        createTeachable: dist_7,
-        Webcam: dist_8,
-        version: dist_9
-    }));
+    unwrapExports(dist$1);
+    var dist_1 = dist$1.IMAGE_SIZE;
+    var dist_2 = dist$1.CustomMobileNet;
+    var dist_3 = dist$1.load;
+    var dist_4 = dist$1.loadFromFiles;
+    var dist_5 = dist$1.loadTruncatedMobileNet;
+    var dist_6 = dist$1.TeachableMobileNet;
+    var dist_7 = dist$1.createTeachable;
+    var dist_8 = dist$1.Webcam;
+    var dist_9 = dist$1.version;
 
     /* src/App.svelte generated by Svelte v3.24.0 */
 
-    const { console: console_1 } = globals;
-    const file = "src/App.svelte";
-
-    // (107:31) 
     function create_if_block_2(ctx) {
     	let h2;
     	let t0;
@@ -73617,72 +73533,50 @@ return (round(mod(b, 2.0)) != 1) ?
     	let t2;
     	let t3;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			h2 = element("h2");
     			t0 = text("AI ");
     			t1 = text(/*percentage*/ ctx[3]);
     			t2 = text(" certain it's a ");
     			t3 = text(/*name*/ ctx[4]);
-    			attr_dev(h2, "class", "svelte-3da0tc");
-    			add_location(h2, file, 107, 4, 2294);
+    			attr(h2, "class", "svelte-3da0tc");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, h2, anchor);
-    			append_dev(h2, t0);
-    			append_dev(h2, t1);
-    			append_dev(h2, t2);
-    			append_dev(h2, t3);
+    		m(target, anchor) {
+    			insert(target, h2, anchor);
+    			append(h2, t0);
+    			append(h2, t1);
+    			append(h2, t2);
+    			append(h2, t3);
     		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*percentage*/ 8) set_data_dev(t1, /*percentage*/ ctx[3]);
-    			if (dirty & /*name*/ 16) set_data_dev(t3, /*name*/ ctx[4]);
+    		p(ctx, dirty) {
+    			if (dirty & /*percentage*/ 8) set_data(t1, /*percentage*/ ctx[3]);
+    			if (dirty & /*name*/ 16) set_data(t3, /*name*/ ctx[4]);
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(h2);
+    		d(detaching) {
+    			if (detaching) detach(h2);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_2.name,
-    		type: "if",
-    		source: "(107:31) ",
-    		ctx
-    	});
-
-    	return block;
     }
 
     // (105:20) 
     function create_if_block_1(ctx) {
     	let h2;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			h2 = element("h2");
     			h2.textContent = "Loading ...";
-    			attr_dev(h2, "class", "svelte-3da0tc");
-    			add_location(h2, file, 105, 4, 2237);
+    			attr(h2, "class", "svelte-3da0tc");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, h2, anchor);
+    		m(target, anchor) {
+    			insert(target, h2, anchor);
     		},
     		p: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(h2);
+    		d(detaching) {
+    			if (detaching) detach(h2);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_1.name,
-    		type: "if",
-    		source: "(105:20) ",
-    		ctx
-    	});
-
-    	return block;
     }
 
     // (103:2) {#if errorMessage}
@@ -73690,35 +73584,24 @@ return (round(mod(b, 2.0)) != 1) ?
     	let h2;
     	let t;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			h2 = element("h2");
     			t = text(/*errorMessage*/ ctx[1]);
     			set_style(h2, "color", "red");
-    			attr_dev(h2, "class", "svelte-3da0tc");
-    			add_location(h2, file, 103, 4, 2168);
+    			attr(h2, "class", "svelte-3da0tc");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, h2, anchor);
-    			append_dev(h2, t);
+    		m(target, anchor) {
+    			insert(target, h2, anchor);
+    			append(h2, t);
     		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*errorMessage*/ 2) set_data_dev(t, /*errorMessage*/ ctx[1]);
+    		p(ctx, dirty) {
+    			if (dirty & /*errorMessage*/ 2) set_data(t, /*errorMessage*/ ctx[1]);
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(h2);
+    		d(detaching) {
+    			if (detaching) detach(h2);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block.name,
-    		type: "if",
-    		source: "(103:2) {#if errorMessage}",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function create_fragment(ctx) {
@@ -73737,8 +73620,8 @@ return (round(mod(b, 2.0)) != 1) ?
     	let current_block_type = select_block_type(ctx);
     	let if_block = current_block_type && current_block_type(ctx);
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			main = element("main");
     			h1 = element("h1");
     			h1.textContent = "Machine Learning";
@@ -73746,30 +73629,24 @@ return (round(mod(b, 2.0)) != 1) ?
     			video = element("video");
     			t2 = space();
     			if (if_block) if_block.c();
-    			attr_dev(h1, "class", "svelte-3da0tc");
-    			add_location(h1, file, 99, 2, 2059);
-    			attr_dev(video, "width", "600");
-    			attr_dev(video, "height", "480");
-    			attr_dev(video, "class", "svelte-3da0tc");
-    			add_location(video, file, 100, 2, 2087);
+    			attr(h1, "class", "svelte-3da0tc");
+    			attr(video, "width", "600");
+    			attr(video, "height", "480");
+    			attr(video, "class", "svelte-3da0tc");
     			set_style(main, "background-color", /*backgroundColor*/ ctx[5]);
     			set_style(main, "color", /*fontColor*/ ctx[6]);
-    			attr_dev(main, "class", "svelte-3da0tc");
-    			add_location(main, file, 98, 0, 1985);
+    			attr(main, "class", "svelte-3da0tc");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, main, anchor);
-    			append_dev(main, h1);
-    			append_dev(main, t1);
-    			append_dev(main, video);
+    		m(target, anchor) {
+    			insert(target, main, anchor);
+    			append(main, h1);
+    			append(main, t1);
+    			append(main, video);
     			/*video_binding*/ ctx[7](video);
-    			append_dev(main, t2);
+    			append(main, t2);
     			if (if_block) if_block.m(main, null);
     		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
     				if_block.p(ctx, dirty);
     			} else {
@@ -73792,8 +73669,8 @@ return (round(mod(b, 2.0)) != 1) ?
     		},
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(main);
+    		d(detaching) {
+    			if (detaching) detach(main);
     			/*video_binding*/ ctx[7](null);
 
     			if (if_block) {
@@ -73801,16 +73678,6 @@ return (round(mod(b, 2.0)) != 1) ?
     			}
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     const URL = "model/";
@@ -73862,54 +73729,11 @@ return (round(mod(b, 2.0)) != 1) ?
     		}
     	}
 
-    	const writable_props = [];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<App> was created with unknown prop '${key}'`);
-    	});
-
-    	let { $$slots = {}, $$scope } = $$props;
-    	validate_slots("App", $$slots, []);
-
     	function video_binding($$value) {
     		binding_callbacks[$$value ? "unshift" : "push"](() => {
     			videoEl = $$value;
     			$$invalidate(0, videoEl);
     		});
-    	}
-
-    	$$self.$capture_state = () => ({
-    		onMount,
-    		tf,
-    		tmImage,
-    		videoEl,
-    		errorMessage,
-    		model,
-    		loading,
-    		percentage,
-    		name,
-    		backgroundColor,
-    		fontColor,
-    		URL,
-    		modelURL,
-    		metadataURL,
-    		predict,
-    		classNameToLabel
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ("videoEl" in $$props) $$invalidate(0, videoEl = $$props.videoEl);
-    		if ("errorMessage" in $$props) $$invalidate(1, errorMessage = $$props.errorMessage);
-    		if ("model" in $$props) model = $$props.model;
-    		if ("loading" in $$props) $$invalidate(2, loading = $$props.loading);
-    		if ("percentage" in $$props) $$invalidate(3, percentage = $$props.percentage);
-    		if ("name" in $$props) $$invalidate(4, name = $$props.name);
-    		if ("backgroundColor" in $$props) $$invalidate(5, backgroundColor = $$props.backgroundColor);
-    		if ("fontColor" in $$props) $$invalidate(6, fontColor = $$props.fontColor);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
     	}
 
     	$$self.$$.update = () => {
@@ -73939,17 +73763,10 @@ return (round(mod(b, 2.0)) != 1) ?
     	];
     }
 
-    class App extends SvelteComponentDev {
+    class App extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
     		init(this, options, instance, create_fragment, safe_not_equal, {});
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "App",
-    			options,
-    			id: create_fragment.name
-    		});
     	}
     }
 
