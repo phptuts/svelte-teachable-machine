@@ -11,6 +11,8 @@
   let loading = true;
   let percentage = "";
   let name = "";
+  let backgroundColor = "#fff";
+  let fontColor = "#000000";
 
   const URL = "model/";
   const modelURL = URL + "model.json";
@@ -30,6 +32,17 @@
       errorMessage = "Camera Access Denied";
     }
   });
+
+  $: if (name === "Thumbs Up") {
+    backgroundColor = "#42edb1";
+    fontColor = "#045187";
+  } else if (name === "Thumbs Down") {
+    backgroundColor = "#b51cba";
+    fontColor = "#0e1eb0";
+  } else {
+    backgroundColor = "#fff";
+    fontColor = "#000000";
+  }
 
   async function predict() {
     const predictions = await model.predict(videoEl);
@@ -83,7 +96,7 @@
   }
 </style>
 
-<main>
+<main style="background-color: {backgroundColor}; color: {fontColor};">
   <h1>Machine Learning</h1>
   <video bind:this={videoEl} width="600" height="480" />
 
